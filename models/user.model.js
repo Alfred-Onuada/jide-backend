@@ -31,10 +31,10 @@ const userSchema = new mongoose.Schema({
     },
     lowercase: true
   },
-  dob: {
+  matricNo: {
     type: Date,
   },
-  address: {
+  cardNo: {
     type: String,
   },
   fullname: {
