@@ -9,7 +9,7 @@ const app = express();
 
 app.use(json());
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3020;
 
 async function main() {
   connect(process.env.DB_URI);

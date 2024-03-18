@@ -1,4 +1,5 @@
-import { Response } from "express";
+import express from "express";
+const {Response} = express;
 
 /**
  * @param {*} error 

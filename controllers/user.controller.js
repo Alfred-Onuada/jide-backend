@@ -5,6 +5,7 @@ import roomModel from './../models/room.model.js';
 import messageModel from './../models/message.model.js';
 import { compareSync } from "bcrypt";
 import { isValidObjectId } from "mongoose";
+import {handle_error} from './../utils/handle-error.js'
 
 /**
  * @param {Request} req 
