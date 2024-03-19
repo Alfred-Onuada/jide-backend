@@ -29,6 +29,7 @@ export function handle_error(error, res) {
   }
 
   // process error from mongodb
+  console.log(error);
   res.status(500).json({ message: "Internal Server Error" });
   return;
 }
