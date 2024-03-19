@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
     lowercase: true
   },
   matricNo: {
-    type: Date,
+    type: String,
   },
   cardNo: {
     type: String,
