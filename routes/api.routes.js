@@ -18,6 +18,6 @@ router.post('/login', login);
 
 router.post('/ai/message');
 
-router.patch('/profile:userId', update_profile);
+router.patch('/profile/:userId', update_profile);
 
 export default router;
