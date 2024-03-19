@@ -174,7 +174,7 @@ export async function search_messages(req, res) {
  */
 export async function update_profile(req, res) {
   try {
-    const {userId} = req;
+    const {userId} = req.params;
     const update = req.body;
 
     if (!isValidObjectId(userId)) {
