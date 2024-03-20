@@ -6,6 +6,8 @@ import messageModel from './../models/message.model.js';
 import { compareSync } from "bcrypt";
 import { isValidObjectId } from "mongoose";
 import {handle_error} from './../utils/handle-error.js'
+import OpenAI from "openai";
+import aiMessageModel from "../models/ai-messages.model.js";
 
 /**
  * @param {Request} req 
@@ -197,7 +199,72 @@ export async function update_profile(req, res) {
 
     await userModel.updateOne({_id: userId}, update);
 
-    res.status(204).json({message: 'Profile updated successfully'});
+    res.status(201).json({message: 'Profile updated successfully'});
+  } catch (error) {
+    handle_error(error, res);
+  }
+}
+
+/**
+ * @param {Request} req 
+ * @param {Response} res 
+ */
+export async function get_ai_message(req, res) {
+  try {
+    const {message, userId} = req.body;
+    const openai = new OpenAI({apiKey: process.env.OPENAI_KEY});
+
+    if (typeof message !== 'string' || message.length === 0) {
+      res.status(400).json({message: 'Invalid Request'});
+      return;
+    }
+
+    if (!isValidObjectId(userId)) {
+      res.status(400).json({message: 'Invalid Request'});
+      return;
+    }
+
+    const userInfo = await userModel.findOne({_id: userId});
+
+    if (!userInfo) {
+      res.status(404).json({message: 'User not found'});
+      return;
+    }
+
+    // save the message
+    await aiMessageModel.create({senderId: userId, recipientId: 'AI', text: message});
+
+    // get previous messages
+    const chatHistory = await aiMessageModel.find({$or: [{recipientId: userId}, {senderId: userId}]})
+      .sort({createdAt: 1})
+      .limit(20);
+
+    const chatHistoryFormatted = chatHistory.map(chat => {
+      if (chat.senderId === 'AI') {
+        return {"role": "assistant", "content": chat.text}
+      } else {
+        return {"role": "user", "content": chat.text}
+      }
+    });
+
+    const messages = [
+      {
+        "role": "system", 
+        "content": `You are a nice assistant catering to the medical needs of univeristy students, you help on health related matters but anything too serious you SHALL ask them to 'CLICK ON A DOCTOR'S PROFILE ON THE PREVIOUS PAGE'. The student you are currenlty speaking to is '${userInfo.fullname}' and the student's gender is '${userInfo.gender}'. Do NOT answer any question that is not health related.`
+      },
+      ...chatHistoryFormatted
+    ];
+
+    const completion = await openai.chat.completions.create({
+      messages,
+      model: "gpt-3.5-turbo",
+    });
+
+    const response = completion.choices[0].message.content;
+
+    await aiMessageModel.create({senderId: 'AI', recipientId: userId, text: response});
+
+    res.status(200).json({message: 'Success', data: response});
   } catch (error) {
     handle_error(error, res);
   }
