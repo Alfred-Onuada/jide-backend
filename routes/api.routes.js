@@ -9,6 +9,7 @@ import {
   search_messages,
   update_profile,
   get_ai_message,
+  send_a_message
 } from "./../controllers/user.controller.js";
 const router = Router();
 
@@ -27,6 +28,8 @@ router.post("/register/user", register_user);
 router.post("/login", login);
 
 router.post("/ai/message", get_ai_message);
+
+router.post("/message", send_a_message);
 
 router.patch("/profile/:userId", update_profile);
 

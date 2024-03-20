@@ -269,3 +269,47 @@ export async function get_ai_message(req, res) {
     handle_error(error, res);
   }
 }
+
+export async function send_a_message(req, res) {
+  try {
+    let {roomId, recipientId} = req.body;
+    const {senderId, text} = req.body;
+
+    // if no roomId, but recipientId, create a room
+    if (!roomId && recipientId) {
+      // check that a room for the sender and recipient does not already exist
+      const roomInfo = await roomModel.findOne({participants: {$all: [senderId, recipientId]}});
+
+      if (roomInfo) {
+        roomId = roomInfo._id;
+      } else {
+        const roomInfo = await roomModel.create({participants: [senderId, recipientId]});
+        roomId = roomInfo._id;
+      }
+    }
+
+    // if no recipientId, but roomId, get the recipientId
+    if (!recipientId && roomId) {
+      const roomInfo = await roomModel.findOne({_id: roomId});
+      recipientId = roomInfo.participants.find(participant => participant !== senderId);
+    }
+
+    if (!isValidObjectId(roomId) || !isValidObjectId(senderId) || !isValidObjectId(recipientId) || typeof text !== 'string' || text.length === 0) {
+      res.status(400).json({message: 'Invalid Request'});
+      return;
+    }
+
+    const roomInfo = await roomModel.findOne({_id: roomId});
+
+    if (!roomInfo) {
+      res.status(404).json({message: 'Room not found'});
+      return;
+    }
+
+    const messageInfo = await messageModel.create({roomId, senderId, text, recipientId});
+
+    res.status(201).json({message: 'Message sent successfully', data: messageInfo});
+  } catch (error) {
+    handle_error(error, res);
+  }
+}
