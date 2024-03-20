@@ -313,3 +313,18 @@ export async function send_a_message(req, res) {
     handle_error(error, res);
   }
 }
+
+export async function get_all_doctors(req, res) {
+  try {
+    const doctors = await userModel.find({role: 'doctor'});
+
+    if (doctors.length === 0) {
+      res.status(404).json({message: 'No doctor found'});
+      return;
+    }
+
+    res.status(200).json({message: 'Success', data: doctors});
+  } catch (error) {
+    handle_error(error, res);
+  }
+}

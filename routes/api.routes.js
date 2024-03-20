@@ -9,7 +9,8 @@ import {
   search_messages,
   update_profile,
   get_ai_message,
-  send_a_message
+  send_a_message,
+  get_all_doctors
 } from "./../controllers/user.controller.js";
 const router = Router();
 
@@ -20,6 +21,8 @@ router.get("/rooms/:userId", get_all_rooms);
 router.get("/rooms/:roomId/messages", get_all_message_in_room);
 
 router.get("/search", search_messages);
+
+router.get("/doctors", get_all_doctors);
 
 router.post("/register/doctor", register_doctor);
 
