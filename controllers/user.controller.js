@@ -83,7 +83,7 @@ export async function get_profile(req, res) {
       return;
     }
 
-    const userInfo = await userModel.find({_id: userId});
+    const userInfo = await userModel.findOne({_id: userId});
 
     if (!userInfo) {
       res.status(404).json({message: 'User not found'});
