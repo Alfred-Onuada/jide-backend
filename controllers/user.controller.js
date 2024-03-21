@@ -128,7 +128,7 @@ export async function get_all_rooms(req, res) {
  */
 export async function get_all_message_in_room(req, res) {
   try {
-    const {roomId} = req;
+    const {roomId} = req.params;
 
     if (!isValidObjectId(roomId)) {
       res.status(400).json({message: 'Invalid room ID'});
