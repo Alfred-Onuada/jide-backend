@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { hashSync } from "bcrypt";
 
 const userSchema = new mongoose.Schema({
-  photo: {
+  avatar: {
     type: String,
   },
   email: {
