@@ -33,12 +33,19 @@ const userSchema = new mongoose.Schema({
   },
   matricNo: {
     type: String,
+    required: [true, 'Matric Number is required'],
   },
   cardNo: {
     type: String,
+    required: [true, 'Card Number is required'],
   },
   fullname: {
     type: String,
+    required: [true, 'Fullname is required'],
+  },
+  schoolName: {
+    type: String,
+    required: [true, 'School Name is required'],
   }
 }, {timestamps: true});
 

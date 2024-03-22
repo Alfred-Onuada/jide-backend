@@ -29,6 +29,41 @@ export async function register_doctor(req, res) {
  */
 export async function register_user(req, res) {
   try {
+    // check the constraint on email, matric and hospital number
+    const {email, matricNo, cardNo} = req.body;
+
+    if (!email || !matricNo || !cardNo) {
+      res.status(400).json({message: 'Invalid Request'});
+      return;
+    }
+
+    // email must end with '@student.babcock.edu.ng'
+    if (typeof email === 'string' && !email.endsWith('@student.babcock.edu.ng')) {
+      res.status(400).json({message: 'Invalid student email'});
+      return;
+    }
+
+    // matric number must follow this pattern 20/0954
+    if (typeof matricNo === 'string' && !matricNo.match(/^\d{2}\/\d{4}$/)) {
+      res.status(400).json({message: 'Invalid matric number'});
+      return;
+    }
+
+    // hospital number must follow this pattern BUTH200954 the numbers must match the matric number
+    if (typeof cardNo === 'string' && !cardNo.match(/^BUTH\d{6}$/)) {
+      res.status(400).json({message: 'Invalid hospital number'});
+      return;
+    }
+
+    // check that the hospital number matches the matric number
+    const matricNumber = matricNo.split('/')[1];
+    const hospitalNumberSuffix = cardNo.slice(-4);
+
+    if (matricNumber !== hospitalNumberSuffix) {
+      res.status(400).json({message: 'Hospital number does not match matric number'});
+      return;
+    }
+
     const insertInfo = await userModel.create({ ...req.body, role: 'patient' });
 
     res.status(201).json({message: 'Registration Success', data: insertInfo});
@@ -190,12 +225,6 @@ export async function update_profile(req, res) {
     }
 
     const userInfo = await userModel.findOne({_id: userId});
-
-    // TODO: confirm right fields are specified based on role
-    const userRole = userInfo.role;
-    const keysProvided = Object.keys(update);
-    const doctorsFields = [];
-    const patientFields = [];
 
     await userModel.updateOne({_id: userId}, update);
 
